@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>实现双向绑定之脏检查</title>
+    <style>
+        #log {
+            font-size: 10px;
+        }
+
+        button {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<input v-model="A" type="text">
+<div v-text="A"></div>
+<input v-model="B" type="text">
+<div v-text="B"></div>
+
+<button id="change">修改A</button>
+<button id="change1">修改B</button>
+
+<br>
+<code>
+    脏检测只有在数据发生变化时才对 DOM 进行更新，最简单的方式就是通过 setInterval() 定时轮询检测数据变动，
+    更好的方法是在指定的事件触发时进入脏值检测，
+    如 DOM 事件（用户输入文本，点击按钮等），XHR 响应事件等
+</code>
+<br>
+
+<ol id="log">
+</ol>
+
+
+<script>
+
+    // 元素数组
+    var elements = [];
+
+    var body = document.getElementsByTagName('body')[0]
+    var log = document.getElementById('log')
+
+    function getChildNodes(node) {
+        if (node.hasChildNodes() && node.nodeType == 1) {
+            for (var i = 0; i < node.children.length; i++) {
+                var child = node.children[i];
+                if (child.nodeName.toUpperCase() !== 'SCRIPT') elements.push(child)
+                getChildNodes(child)
+            }
+        }
+    }
+    // 遍历 body 下的元素
+    getChildNodes(body)
+
+    var dataSet = {
+        A: 'A',
+        B: 'B'
+    }
+
+    var vCmd = {
+        text: function (str) {
+            this.innerHTML = str
+        },
+        model: function (str) {
+            this.value = str
+        }
+    }
+
+    function logInfo(txt) {
+        console.log(txt)
+        var node = document.createElement("LI");
+        var textNode = document.createTextNode(txt);
+        node.appendChild(textNode);
+        log.appendChild(node)
+    }
+
+    // 扫描带'v-'指令的元素属性并带脏检查
+    var $digest = function (elements, skipDigest) {
+        for (var i = 0; i < elements.length; i++) {
+            var element = elements[i]
+            if (skipDigest) {
+                element.cmd = {};
+            }
+            for (var j = 0; j < element.attributes.length; j++) {
+                var attr = element.attributes[j]
+                if (attr.nodeName.indexOf('v-') >= 0) {
+                    // 进行脏数据检测，如果数据改变，则重新执行指令绑定的方法，否则跳过
+                    if (skipDigest || element.cmd[attr.nodeValue] !== dataSet[attr.nodeValue]) {
+                        logInfo(attr.nodeValue + ' ' + attr.ownerElement.nodeName.toLowerCase() + ' changed √ ')
+                        vCmd[attr.nodeName.slice(2)].call(element, dataSet[attr.nodeValue])
+                    } else {
+                        logInfo(attr.nodeValue + ' ' + attr.ownerElement.nodeName.toLowerCase() + ' unchanged ×')
+                    }
+                    element.cmd[attr.nodeValue] = dataSet[attr.nodeValue]
+                }
+            }
+        }
+    }
+
+    // 初始化数据
+    $digest(elements, true)
+
+
+    // 为 input 添加监听事件
+    for (var k = 0; k < elements.length; k++) {
+        if (elements[k].nodeName.toUpperCase() === 'INPUT') {
+            (function (k) {
+                elements[k].addEventListener('keyup', function (e) {
+
+                    for (var j = 0; j < elements[k].attributes.length; j++) {
+                        var attr = elements[k].attributes[j];
+                        if (attr.nodeName.indexOf('v-') >= 0) {
+                            dataSet[attr.nodeValue] = e.target.value;
+                            console.log(dataSet)
+                        }
+                    }
+                    $digest(elements);
+                }, false);
+            })(k)
+        }
+    }
+
+    document.getElementById('change').onclick = function () {
+        dataSet.A = 'change A'
+        $digest(elements)
+    }
+
+    document.getElementById('change1').onclick = function () {
+        dataSet.B = 'change B'
+        $digest(elements)
+    }
+
+
+    // 循环监听
+    //    setInterval(function () {
+    //        $digest(elements)
+    //    }, 1000)
+
+</script>
+</body>
+</html>

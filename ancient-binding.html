@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>实现双向绑定之手动绑定</title>
+</head>
+<body>
+
+<input v-model="msg" type="text">
+<div v-value="msg"></div>
+
+<input v-model="msg1" type="text">
+<div v-value="msg1"></div>
+
+<button id="change">修改msg</button>
+<button id="change1">修改msg1</button>
+<br>
+<code>
+    这种方法的实现类似观察者模式,
+    通过监听 DOM 的 keydown,keyup,change 等事件或者定时器触发'循环扫描'方法更新 DOM。
+</code>
+
+</body>
+
+<script>
+    // 元素数组
+    var elements = [];
+
+    var body = document.getElementsByTagName('body')[0];
+
+    function getChildNodes(node) {
+        if (node.hasChildNodes() && node.nodeType == 1) {
+            for (var i = 0; i < node.children.length; i++) {
+                var child = node.children[i];
+                if (child.nodeName.toUpperCase() !== 'SCRIPT') elements.push(child)
+                getChildNodes(child)
+            }
+        }
+    }
+    // 遍历 body 下的元素
+    getChildNodes(body)
+
+    // 初始化数据
+    var data = {
+        msg: 'Hello0',
+        msg1: 'Hello1'
+    };
+
+    // 指令名和对应的方法
+    var vCmd = {
+        // v-value
+        value: function (str) {
+            this.innerHTML = str;
+        },
+        // v-model
+        model: function (str) {
+            // setAttribute('value', str) 仅能进行初始化，
+            // 所以表现为第一次设置有效，第二次无效
+            // 而有了值时必须通过 this.value = str 更新
+//            this.setAttribute('value', str)
+            this.value = str
+        }
+    }
+
+    // 扫描带'v-'指令的元素属性
+    var scan = function () {
+        for (var i = 0; i < elements.length; i++) {
+            var element = elements[i];
+            for (var j = 0; j < element.attributes.length; j++) {
+                var attr = element.attributes[j];
+                if (attr.nodeName.indexOf('v-') >= 0) {
+                    // 调用指令绑定的方法
+                    vCmd[attr.nodeName.slice(2)].call(element, data[attr.nodeValue]);
+                }
+            }
+        }
+    }
+
+    // 为 input 添加监听事件
+    for (var k = 0; k < elements.length; k++) {
+        if (elements[k].nodeName.toUpperCase() === 'INPUT') {
+            (function (k) {
+                elements[k].addEventListener('keyup', function (e) {
+
+                    for (var j = 0; j < elements[k].attributes.length; j++) {
+                        var attr = elements[k].attributes[j];
+                        if (attr.nodeName.indexOf('v-') >= 0) {
+                            data[attr.nodeValue] = e.target.value;
+                            console.log(data)
+                        }
+                    }
+                    scan();
+                }, false);
+            })(k)
+        }
+    }
+
+    document.getElementById('change').onclick = function () {
+        data.msg = 'change value0'
+        scan()
+    }
+
+    document.getElementById('change1').onclick = function () {
+        data.msg1 = 'change value1'
+        scan()
+    }
+
+    scan()
+
+    // 循环监听
+    //    setInterval(function () {
+    //        scan();
+    //    }, 1000)
+
+</script>
+</html>
