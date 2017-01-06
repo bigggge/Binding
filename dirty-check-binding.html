@@ -78,7 +78,8 @@
     }
 
     // 扫描带'v-'指令的元素属性并带脏检查
-    var $digest = function (elements, skipDigest) {
+    var digest = function (elements, skipDigest) {
+        console.log('scan...')
         for (var i = 0; i < elements.length; i++) {
             var element = elements[i]
             if (skipDigest) {
@@ -101,7 +102,7 @@
     }
 
     // 初始化数据
-    $digest(elements, true)
+    digest(elements, true)
 
 
     // 为 input 添加监听事件
@@ -117,7 +118,7 @@
                             console.log(dataSet)
                         }
                     }
-                    $digest(elements);
+                    digest(elements);
                 }, false);
             })(k)
         }
@@ -125,18 +126,18 @@
 
     document.getElementById('change').onclick = function () {
         dataSet.A = 'change A'
-        $digest(elements)
+        digest(elements)
     }
 
     document.getElementById('change1').onclick = function () {
         dataSet.B = 'change B'
-        $digest(elements)
+        digest(elements)
     }
 
 
     // 循环监听
     //    setInterval(function () {
-    //        $digest(elements)
+    //        digest(elements)
     //    }, 1000)
 
 </script>

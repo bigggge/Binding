@@ -2,31 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>实现双向绑定之手动绑定</title>
+    <title>实现双向绑定之数据劫持</title>
 </head>
 <body>
 
 <input v-model="msg" type="text">
-<div v-value="msg"></div>
+<div v-text="msg"></div>
 
 <input v-model="msg1" type="text">
-<div v-value="msg1"></div>
+<div v-text="msg1"></div>
 
 <button id="change">修改msg</button>
 <button id="change1">修改msg1</button>
-<br>
+
 <code>
-    这种方法的实现类似观察者模式,
-    通过监听 DOM 的 keydown,keyup,change 等事件或者定时器触发'循环扫描'方法更新 DOM。
+    数据劫持方法是使用 Object.defineProperty 对数据对象做属性 get 和 set 的监听，
+    当有数据读取和赋值操作时则调用对应的方法，这样使用等号赋值就可以了
 </code>
 
-</body>
-
 <script>
+
     // 元素数组
     var elements = [];
 
-    var body = document.getElementsByTagName('body')[0];
+    var body = document.getElementsByTagName('body')[0]
 
     function getChildNodes(node) {
         if (node.hasChildNodes() && node.nodeType == 1) {
@@ -46,25 +45,18 @@
         msg1: 'Hello1'
     };
 
-    // 指令名和对应的方法
     var vCmd = {
-        // v-value
-        value: function (str) {
-            this.innerHTML = str;
+        text: function (str) {
+            this.innerHTML = str
         },
-        // v-model
         model: function (str) {
-            // setAttribute('value', str) 仅能进行初始化，
-            // 所以表现为第一次设置有效，第二次无效
-            // 而有了值时必须通过 this.value = str 更新
-//            this.setAttribute('value', str)
             this.value = str
         }
     }
 
     // 扫描带'v-'指令的元素属性
-    var scanToCall = function () {
-        console.log('scan...')
+    var scanAndCall = function () {
+        console.log('scanAndCall...')
         for (var i = 0; i < elements.length; i++) {
             var element = elements[i];
             for (var j = 0; j < element.attributes.length; j++) {
@@ -77,20 +69,51 @@
         }
     }
 
+    // 劫持各个属性的 setter，getter，在数据变动时扫描并触发指令绑定的方法
+    var defineProperty = function (obj) {
+        for (var prop in obj) {
+            // 使用闭包封闭作用域，保存 _value 的值
+            (function (prop) {
+                try {
+                    // 初始值
+                    var _value = obj[prop];
+                    // https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
+                    Object.defineProperty(obj, prop, {
+                        get: function () {
+                            return _value
+                        },
+
+                        set: function (newValue) {
+                            _value = newValue
+                            scanAndCall()
+                        },
+                        // enumerable 定义了对象的属性是否可以在 for...in 循环和 Object.keys() 中被枚举
+                        enumerable: true,
+                        // configurable 特性表示对象的属性是否可以被删除
+                        configurable: true
+                    })
+                } catch (error) {
+                    console.error(error)
+                }
+            })(prop)
+        }
+    }
+
+    scanAndCall()
+    defineProperty(data)
+
+
     // 为 input 添加监听事件
     for (var k = 0; k < elements.length; k++) {
         if (elements[k].nodeName.toUpperCase() === 'INPUT') {
             (function (k) {
                 elements[k].addEventListener('keyup', function (e) {
-
                     for (var j = 0; j < elements[k].attributes.length; j++) {
-                        var attr = elements[k].attributes[j];
+                        var attr = elements[k].attributes[j]
                         if (attr.nodeName.indexOf('v-') >= 0) {
                             data[attr.nodeValue] = e.target.value;
-                            console.log(data)
                         }
                     }
-                    scanToCall();
                 }, false);
             })(k)
         }
@@ -98,20 +121,12 @@
 
     document.getElementById('change').onclick = function () {
         data.msg = 'change value0'
-        scanToCall()
     }
 
     document.getElementById('change1').onclick = function () {
         data.msg1 = 'change value1'
-        scanToCall()
     }
 
-    scanToCall()
-
-    // 循环监听
-    //    setInterval(function () {
-    //        scan();
-    //    }, 1000)
-
 </script>
+</body>
 </html>
