@@ -5,8 +5,8 @@
 实现数据绑定：
 
 - 普通绑定 [实例](example/ancient-binding.html)
-- 常见的数据绑定的实现有脏值检测（Angular.js）[实例](example/dirty-check-binding.html)
-- 基于 ES5 的 getter和setter 进行数据劫持（Vue.js）[实例](example/hijack-binding.html)
+- 脏值检测（Angular.js）[实例](example/dirty-check-binding.html)
+- 使用 `Object.defineProperty()` 进行数据劫持（Vue.js）[实例](example/hijack-binding.html)
 
 ### 实现思路
 
@@ -17,7 +17,7 @@
 
 ### 模块划分
 
-![binding](binding.svg)
+![binding](binding.png)
 
 
 
