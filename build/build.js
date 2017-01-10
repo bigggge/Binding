@@ -1,2 +1,630 @@
-!function e(t,o,n){function r(a,s){if(!o[a]){if(!t[a]){var c="function"==typeof require&&require;if(!s&&c)return c(a,!0);if(i)return i(a,!0);var l=new Error("Cannot find module '"+a+"'");throw l.code="MODULE_NOT_FOUND",l}var u=o[a]={exports:{}};t[a][0].call(u.exports,function(e){var o=t[a][1][e];return r(o?o:e)},u,u.exports,e,t,o,n)}return o[a].exports}for(var i="function"==typeof require&&require,a=0;a<n.length;a++)r(n[a]);return r}({1:[function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}function r(e){console.log("Binding 正在启动..."),console.log("数据参数对象:",e),this.$options=e,this.$data=e.data;var t=document.querySelector(this.$options.el);return t?(this._init(t),(0,c.default)(this.$data),void(0,a.default)(e,this)):void console.error("[Binding warn] "+this.$options.el+" is not exist")}var i=e("./Compiler"),a=n(i),s=e("./Observer"),c=n(s),l=e("./Watcher"),u=n(l);window.Binding=r;var d=r.prototype;d._init=function(e){var t=this;this.$options.el=e,Object.keys(t.$data).forEach(function(e){t._proxy(e)})},d.$watch=function(e,t){new u.default(this,e,t)},d._proxy=function(e){console.log("[Binding.prototype] proxy");var t=this;Object.defineProperty(t,e,{configurable:!1,enumerable:!0,get:function(){return t.$data[e]},set:function(o){t.$data[e]=o}})}},{"./Compiler":2,"./Observer":4,"./Watcher":7}],2:[function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}function r(e,t){console.log("正在创建[指令解析器]..."),console.log("数据参数对象:",e,"Binding 实例",t);var o=e.el;this.$el=c(o)?o:document.querySelector(o),this.$data=e.$data,this.$vm=t,this.mount()}function i(e){for(var t,o=document.createDocumentFragment();t=e.firstChild;)o.appendChild(t);return o}function a(e){return 0===e.indexOf("v-")}function s(e){return 0===e.indexOf("on")}function c(e){return e&&1===e.nodeType}function l(e){return e&&3===e.nodeType}function u(e,t){new r(e,t)}Object.defineProperty(o,"__esModule",{value:!0}),o.default=u;var d=e("./Parser"),f=n(d);r.prototype={mount:function(){var e=i(this.$el);this.compile(e),this.$el.appendChild(e)},compile:function(e){console.log("[Compiler.prototype] 开始解析(compile)",e);var t=e.childNodes,o=this;Array.prototype.slice.call(t).forEach(function(e){var t=e.textContent,n=/\{\{(.*)\}\}/;c(e)?o.parse(e):l(e)&&n.test(t)&&o.parseText(e,RegExp.$1),e.childNodes&&e.childNodes.length>0&&o.compile(e)})},parse:function(e){console.log("[Compiler.prototype] 解析元素节点(parse)");var t=e.attributes,o=this;Array.prototype.slice.call(t).forEach(function(t){var n=t.name;if(a(n)){var r=t.value,i=n.substring(2);s(i)?f.default._eventHandler(e,o.$vm,r,i):f.default[i]?f.default[i](e,o.$vm,r):console.error("[Binding error] v-"+i+" is not supported")}})},parseText:function(e,t){console.log("[Compiler.prototype] 解析元素节点(parseText)"),f.default.text(e,this.$vm,t)}}},{"./Parser":5}],3:[function(e,t,o){"use strict";function n(e){console.log("正在创建[依赖收集器]...","key",e),this.id=r++,this.watchers=[],this.watcher=null}Object.defineProperty(o,"__esModule",{value:!0}),o.default=n;var r=0;n.prototype={addWatcher:function(e){console.log("[Observer Depend.prototype] addWatcher"),this.watchers.push(e)},depend:function(){console.log("[Observer Depend.prototype] depend"),n.watcher.addDepend(this)},notify:function(){console.log("[Observer Depend.prototype] notify"),console.log("watchers",this.watchers),this.watchers.forEach(function(e){e.update()})}}},{}],4:[function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}function r(e){"object"===("undefined"==typeof e?"undefined":a(e))&&(console.log("正在创建[事件监听器]..."),console.log("被监听数据：",e),this.$data=e,this.observeObj(e))}function i(e){if(e)return new r(e)}Object.defineProperty(o,"__esModule",{value:!0});var a="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};o.default=i;var s=e("./Depend"),c=n(s);r.prototype={observeObj:function(e){console.log("[Observer.prototype] observeObj");var t=this;Object.keys(e).forEach(function(o){t.defineProperty(t.$data,o,e[o])})},defineProperty:function(e,t,o){var n=new c.default(t),r=i(o);Object.defineProperty(e,t,{enumerable:!0,configurable:!1,get:function(){return console.log("[Observer.prototype] defineProperty:Depend.watcher",c.default.watcher),c.default.watcher&&n.depend(),o},set:function(e){e!==o&&(o=e,r=i(e),n.notify())}})}}},{"./Depend":3}],5:[function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(o,"__esModule",{value:!0});var r=e("./Updater"),i=n(r),a=e("./Watcher"),s=n(a),c={text:function(e,t,o){this._bind(e,t,o,"text")},html:function(e,t,o){this._bind(e,t,o,"html")},model:function(e,t,o){this._bind(e,t,o,"model");var n=this,r=this._getValue(t,o);e.addEventListener("input",function(e){var i=e.target.value;r!==i&&(n._setValue(t,o,i),r=i)})},class:function(e,t,o){this._bind(e,t,o,"class")},_bind:function(e,t,o,n){var r=i.default[n];r&&(r(e,this._getValue(t,o)),new s.default(t,o,function(t,o){r(e,t,o)}))},_eventHandler:function(e,t,o,n){console.log("[Compiler DirectiveParsers] eventHandler");var r=n.split(":")[1],i=t.$options.methods&&t.$options.methods[o];r&&i?e.addEventListener(r,i.bind(t),!1):r?console.error("[Binding error] event's function or function name is not defined"):console.error("[Binding error] eventType after : is not defined")},_getValue:function(e,t){var o=e.$data;return t=t.split("."),t.forEach(function(e){o=o[e]}),o},_setValue:function(e,t,o){var n=e.$data;t=t.split("."),t.forEach(function(e,r){r<t.length-1?n=n[e]:n[e]=o})}};o.default=c},{"./Updater":6,"./Watcher":7}],6:[function(e,t,o){"use strict";Object.defineProperty(o,"__esModule",{value:!0});var n={text:function(e,t){console.log("[Updater] v-text",t),e.textContent="undefined"==typeof t?"":t},html:function(e,t){console.log("[Updater] v-html",e,t),e.innerHTML="undefined"==typeof t?"":t},class:function(e,t,o){console.log("[Updater] v-class",e,o,"->",t);var n=e.className;n=n.replace(o,"").replace(/\s$/,"");var r=n&&String(t)?" ":"";e.className=n+r+t},model:function(e,t){console.log("[Updater] v-model",e,t),e.value="undefined"==typeof t?"":t}};o.default=n},{}],7:[function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{default:e}}function r(e,t,o){console.log("正在创建[数据订阅器]...","vm:",e," expression:",t," callback:",o),this.vm=e,this.callback=o,this.expression=t,this.depIds={},this.value=this._getValue()}Object.defineProperty(o,"__esModule",{value:!0}),o.default=r;var i=e("./Depend"),a=n(i);r.prototype={update:function(){console.log("[Watcher.prototype] update");var e=this._getValue(),t=this.value;e!==t&&(console.log("[Watcher.prototype] value:",t,"->",e),this.value=e,this.callback.call(this.vm,e,t))},addDepend:function(e){console.log("[Watcher.prototype] addDepend"),this.depIds.hasOwnProperty(e.id)||(e.addWatcher(this),this.depIds[e.id]=e)},_beforeGet:function(){a.default.watcher=this,console.log("[Watcher.prototype] _beforeGet watcher",this)},_getValue:function(){this._beforeGet();var e=this.expression.split("."),t=this.vm.$data;return e.forEach(function(e){t=t[e]}),this._afterGet(),t},_afterGet:function(){a.default.watcher=null}}},{"./Depend":3}]},{},[1]);
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+var _Compiler = require("./Compiler");
+
+var _Compiler2 = _interopRequireDefault(_Compiler);
+
+var _Observer = require("./Observer");
+
+var _Observer2 = _interopRequireDefault(_Observer);
+
+var _Watcher = require("./Watcher");
+
+var _Watcher2 = _interopRequireDefault(_Watcher);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.Binding = Binding;
+
+/**
+ * 构造函数入口
+ *
+ * @param options [数据参数对象]
+ * @constructor
+ */
+/**
+ * Bind.js
+ *
+ * Created by xiepan on 2017/1/9 上午11:50.
+ */
+function Binding(options) {
+    console.log('Binding 正在启动...');
+    console.log('数据参数对象:', options);
+    this.$options = options;
+    this.$data = options.data;
+
+    var el = document.querySelector(this.$options.el);
+
+    if (!el) {
+        console.error('[Binding warn] ' + this.$options.el + ' is not exist');
+        return;
+    }
+
+    // 代理
+    this._init(el);
+    // 创建数据监听器(观察者)
+    (0, _Observer2.default)(this.$data);
+    // 创建编译模块
+    (0, _Compiler2.default)(options, this);
+}
+
+var proto = Binding.prototype;
+
+proto._init = function (el) {
+    var _this = this;
+
+    this.$options.el = el;
+
+    Object.keys(_this.$data).forEach(function (key) {
+        _this._proxy(key);
+    });
+};
+proto.$watch = function (key, cb) {
+    new _Watcher2.default(this, key, cb);
+};
+
+proto._proxy = function (key) {
+    console.log('[Binding.prototype] proxy');
+    var _this = this;
+    Object.defineProperty(_this, key, {
+        configurable: false,
+        enumerable: true,
+        get: function get() {
+            return _this.$data[key];
+        },
+        set: function set(newVal) {
+            _this.$data[key] = newVal;
+        }
+    });
+};
+
+},{"./Compiler":2,"./Observer":4,"./Watcher":7}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = createCompiler;
+
+var _Parser = require('./Parser');
+
+var _Parser2 = _interopRequireDefault(_Parser);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Compiler(options, vm) {
+    console.log('正在创建[指令解析器]...');
+    console.log('数据参数对象:', options, 'Binding 实例', vm);
+
+    var el = options.el;
+    this.$el = isElementNode(el) ? el : document.querySelector(el);
+    this.$data = options.$data;
+    this.$vm = vm;
+    this.mount();
+} /**
+   * compile.js
+   *
+   * 编译模块
+   *
+   * Created by xiepan on 2017/1/9 上午10:12.
+   */
+
+
+Compiler.prototype = {
+    mount: function mount() {
+        var fragment = node2Fragment(this.$el);
+        this.compile(fragment);
+        this.$el.appendChild(fragment);
+    },
+
+    compile: function compile(el) {
+        console.log('[Compiler.prototype] 开始解析(compile)', el);
+        // Node.childNodes 返回包含指定节点的子节点的集合
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/childNodes
+        // ParentNode.children 是一个只读属性，返回一个包含当前元素的子元素的集合
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/ParentNode/children
+        var childNodes = el.childNodes,
+            _this = this;
+        Array.prototype.slice.call(childNodes).forEach(function (node) {
+            var text = node.textContent;
+            var mustacheRe = /\{\{(.*)\}\}/;
+
+            // 元素
+            if (isElementNode(node)) {
+                _this.parse(node);
+                // 文本
+            } else if (isTextNode(node) && mustacheRe.test(text)) {
+                _this.parseText(node, RegExp.$1);
+            }
+            // 子节点
+            if (node.childNodes && node.childNodes.length > 0) {
+                _this.compile(node);
+            }
+        });
+    },
+    /**
+     * 解析元素节点
+     *
+     * @param node
+     */
+    parse: function parse(node) {
+        console.log('[Compiler.prototype] 解析元素节点(parse)');
+        var nodeAttrs = node.attributes,
+            _this = this;
+
+        // 处理指令
+        Array.prototype.slice.call(nodeAttrs).forEach(function (attr) {
+            var attrName = attr.name;
+            if (isDirective(attrName)) {
+                // 指令值
+                var expression = attr.value;
+                // 指令类型
+                var directive = attrName.substring(2);
+                // 是事件指令
+                if (isEventDirective(directive)) {
+                    _Parser2.default._eventHandler(node, _this.$vm, expression, directive);
+                } else {
+                    // 其他指令
+                    if (_Parser2.default[directive]) {
+                        _Parser2.default[directive](node, _this.$vm, expression);
+                    } else {
+                        console.error('[Binding error] v-' + directive + ' is not supported');
+                    }
+                }
+            }
+        });
+    },
+    parseText: function parseText(node, exp) {
+        console.log('[Compiler.prototype] 解析元素节点(parseText)');
+        _Parser2.default.text(node, this.$vm, exp);
+    }
+};
+
+/**
+ * element 的子节点转换成文档片段
+ *
+ * DocumentFragments 是一些DOM节点。它们不是DOM树的一部分。
+ * 在DOM树中，文档片段会被替换为它所有的子元素。
+ * 因为文档片段存在与内存中，并不在DOM树中，
+ * 所以将子元素插入到文档片段时不会引起页面回流(reflow)(对元素位置和几何上的计算)，可以优化性能。
+ *
+ * @param el
+ * @returns {DocumentFragment}
+ */
+function node2Fragment(el) {
+    var fragment = document.createDocumentFragment();
+    var child;
+    while (child = el.firstChild) {
+        fragment.appendChild(child);
+    }
+    return fragment;
+}
+
+/**
+ * 是否是指令
+ *
+ * @param attrName
+ * @returns {boolean}
+ */
+function isDirective(attrName) {
+    return attrName.indexOf('v-') === 0;
+}
+/**
+ * 是否是事件指令
+ *
+ * @param attrName
+ * @returns {boolean}
+ */
+function isEventDirective(attrName) {
+    return attrName.indexOf('on') === 0;
+}
+/**
+ * 是否是元素节点
+ * https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
+ *
+ * @param node
+ * @returns {boolean}
+ */
+function isElementNode(node) {
+    return node && node.nodeType === 1;
+}
+/**
+ * 是否是文本节点
+ *
+ * @param node
+ * @returns {boolean}
+ */
+function isTextNode(node) {
+    return node && node.nodeType === 3;
+}
+
+function createCompiler(options, vm) {
+    new Compiler(options, vm);
+}
+
+},{"./Parser":5}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = Depend;
+/**
+ * Depend.js
+ *
+ * 依赖收集模块
+ *
+ * 每个数据拥有一个 Depend 依赖收集器，
+ * 用于维护 watchers (订阅者)数组，数据变动触发 notify 方法，
+ * 再调用 watchers 的 update 方法
+ *
+ * Created by xiepan on 2017/1/9 下午3:52.
+ */
+
+var id = 0;
+
+function Depend(key) {
+    console.log('正在创建[依赖收集器]...', 'key', key);
+    this.id = id++;
+    this.watchers = [];
+    this.watcher = null;
+}
+
+Depend.prototype = {
+    /**
+     * 添加订阅者
+     *
+     * @param watcher
+     */
+    addWatcher: function addWatcher(watcher) {
+        console.log('[Observer Depend.prototype] addWatcher');
+        this.watchers.push(watcher);
+    },
+    depend: function depend() {
+        console.log('[Observer Depend.prototype] depend');
+        Depend.watcher.addDepend(this);
+    },
+    notify: function notify() {
+        console.log('[Observer Depend.prototype] notify');
+        console.log('watchers', this.watchers);
+        this.watchers.forEach(function (watcher) {
+            watcher.update();
+        });
+    }
+};
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; /**
+                                                                                                                                                                                                                                                                               * observer.js
+                                                                                                                                                                                                                                                                               *
+                                                                                                                                                                                                                                                                               * 数据监听模块
+                                                                                                                                                                                                                                                                               *
+                                                                                                                                                                                                                                                                               * Created by xiepan on 2017/1/6 下午4:04.
+                                                                                                                                                                                                                                                                               */
+// var $data = {name: 'ggg'}
+// createObserver($data)
+// $data.name = '123'
+
+
+exports.default = createObserver;
+
+var _Depend = require('./Depend');
+
+var _Depend2 = _interopRequireDefault(_Depend);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Observer(data) {
+    // 监听对象的变化
+    if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) === 'object') {
+        console.log('正在创建[事件监听器]...');
+        console.log('被监听数据：', data);
+        this.$data = data;
+        this.observeObj(data);
+    }
+}
+
+Observer.prototype = {
+    /**
+     * 监听对象的变化
+     *
+     * @param data
+     */
+    observeObj: function observeObj(data) {
+        console.log('[Observer.prototype] observeObj');
+        var _this = this;
+        Object.keys(data).forEach(function (key) {
+            _this.defineProperty(_this.$data, key, data[key]);
+        });
+    },
+    /**
+     * 检测对象的变化 & 依赖收集
+     *
+     * @param data
+     * @param key
+     * @param val
+     */
+    defineProperty: function defineProperty(data, key, val) {
+        var dep = new _Depend2.default(key);
+        // 嵌套对象
+        var childObj = createObserver(val);
+        Object.defineProperty(data, key, {
+            enumerable: true,
+            configurable: false,
+            get: function get() {
+                console.log('[Observer.prototype] defineProperty:Depend.watcher', _Depend2.default.watcher);
+                if (_Depend2.default.watcher) {
+                    dep.depend();
+                }
+                return val;
+            },
+            set: function set(newVal) {
+                if (newVal === val) {
+                    return;
+                }
+                val = newVal;
+                childObj = createObserver(newVal);
+                dep.notify();
+            }
+        });
+    }
+};
+
+/**
+ * 创建数据监听器
+ *
+ * @param value
+ * @returns {Observer}
+ */
+function createObserver(data) {
+    if (data) {
+        return new Observer(data);
+    }
+}
+
+},{"./Depend":3}],5:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _Updater = require("./Updater");
+
+var _Updater2 = _interopRequireDefault(_Updater);
+
+var _Watcher = require("./Watcher");
+
+var _Watcher2 = _interopRequireDefault(_Watcher);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Parser.js
+ *
+ * 指令解析模块(v-text,v-html,v-model,v-class,v-on)
+ *
+ * Created by xiepan on 2017/1/10 下午1:25.
+ */
+var Parsers = {
+    text: function text(node, vm, exp) {
+        // console.log('[Compiler DirectiveParsers] text')
+        this._bind(node, vm, exp, 'text');
+    },
+    html: function html(node, vm, exp) {
+        // console.log('[Compiler DirectiveParsers] html')
+        this._bind(node, vm, exp, 'html');
+    },
+    model: function model(node, vm, exp) {
+        // console.log('[Compiler DirectiveParsers] model')
+        this._bind(node, vm, exp, 'model');
+
+        var _this = this,
+            val = this._getValue(vm, exp);
+        node.addEventListener('input', function (e) {
+            var newVal = e.target.value;
+            if (val === newVal) {
+                return;
+            }
+            _this._setValue(vm, exp, newVal);
+            val = newVal;
+        });
+    },
+    class: function _class(node, vm, exp) {
+        this._bind(node, vm, exp, 'class');
+    },
+    /**
+     * 调用 Updater 视图刷新模块并为其创建数据订阅模块
+     * @param node
+     * @param vm
+     * @param exp
+     * @param dir
+     * @private
+     */
+    _bind: function _bind(node, vm, exp, dir) {
+        // 数据更新函数
+        var updaterFn = _Updater2.default[dir];
+
+        if (updaterFn) {
+            //{node,value}
+            // 初始化视图
+            updaterFn(node, this._getValue(vm, exp));
+            // 创建数据订阅器订阅数据变化，更新视图
+            new _Watcher2.default(vm, exp, function (val, oldVal) {
+                updaterFn(node, val, oldVal);
+            });
+        }
+    },
+    /**
+     * 事件处理
+     *
+     * @param node 节点
+     * @param vm Binding实例
+     * @param exp 方法名
+     * @param dir 指令名称(如：on:click)
+     */
+    _eventHandler: function _eventHandler(node, vm, exp, dir) {
+        console.log('[Compiler DirectiveParsers] eventHandler');
+        // 事件类型，如 click 事件
+        var eventType = dir.split(':')[1];
+        // 绑定的方法
+        var fn = vm.$options.methods && vm.$options.methods[exp];
+
+        // 添加事件监听器
+        if (eventType && fn) {
+            node.addEventListener(eventType, fn.bind(vm), false);
+        } else {
+            if (!eventType) {
+                console.error('[Binding error] eventType after : is not defined');
+            } else {
+                console.error('[Binding error] event\'s function or function name is not defined');
+            }
+        }
+    },
+    _getValue: function _getValue(vm, exp) {
+        // console.log('[Compiler DirectiveParsers] _getVMVal')
+        var val = vm.$data;
+        exp = exp.split('.');
+        exp.forEach(function (k) {
+            val = val[k];
+        });
+        return val;
+    },
+
+    _setValue: function _setValue(vm, exp, value) {
+        // console.log('[Compiler DirectiveParsers] _setVMVal')
+        var val = vm.$data;
+        exp = exp.split('.');
+        exp.forEach(function (k, i) {
+            if (i < exp.length - 1) {
+                val = val[k];
+            } else {
+                val[k] = value;
+            }
+        });
+    }
+};
+
+exports.default = Parsers;
+
+},{"./Updater":6,"./Watcher":7}],6:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+/**
+ * Updater.js
+ *
+ * 视图刷新模块
+ *
+ * Created by xiepan on 2017/1/9 下午4:59.
+ */
+
+var Updater = {
+    text: function text(node, value) {
+        console.log('[Updater] v-text', value);
+        node.textContent = typeof value == 'undefined' ? '' : value;
+    },
+    html: function html(node, value) {
+        console.log('[Updater] v-html', node, value);
+        node.innerHTML = typeof value == 'undefined' ? '' : value;
+    },
+    class: function _class(node, value, oldValue) {
+        console.log('[Updater] v-class', node, oldValue, '->', value);
+        var className = node.className;
+        className = className.replace(oldValue, '').replace(/\s$/, '');
+
+        var space = className && String(value) ? ' ' : '';
+        node.className = className + space + value;
+    },
+    model: function model(node, value) {
+        console.log('[Updater] v-model', node, value);
+        node.value = typeof value == 'undefined' ? '' : value;
+    }
+};
+
+exports.default = Updater;
+
+},{}],7:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = Watcher;
+
+var _Depend = require('./Depend');
+
+var _Depend2 = _interopRequireDefault(_Depend);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function Watcher(vm, exp, callback) {
+    console.log('正在创建[数据订阅器]...', 'vm:', vm, ' expression:', exp, ' callback:', callback);
+
+    this.vm = vm;
+    // 数据更新回调函数
+    this.callback = callback;
+    // 表达式
+    this.expression = exp;
+    // 依赖 id
+    this.depIds = {};
+    this.value = this._getValue();
+} /**
+   * Watcher.js (subscriber)
+   *
+   * 数据订阅模块
+   *
+   * Created by xiepan on 2017/1/9 下午1:39.
+   */
+
+
+Watcher.prototype = {
+    update: function update() {
+        console.log('[Watcher.prototype] update');
+        var value = this._getValue();
+        var oldValue = this.value;
+        if (value !== oldValue) {
+            console.log('[Watcher.prototype] value:', oldValue, '->', value);
+            this.value = value;
+            this.callback.call(this.vm, value, oldValue);
+        }
+    },
+    addDepend: function addDepend(dep) {
+        console.log('[Watcher.prototype] addDepend');
+        if (!this.depIds.hasOwnProperty(dep.id)) {
+            dep.addWatcher(this);
+            this.depIds[dep.id] = dep;
+        }
+    },
+    _beforeGet: function _beforeGet() {
+        _Depend2.default.watcher = this;
+        console.log('[Watcher.prototype] _beforeGet watcher', this);
+    },
+    _getValue: function _getValue() {
+        this._beforeGet();
+        var exp = this.expression.split('.');
+        var val = this.vm.$data;
+        exp.forEach(function (k) {
+            val = val[k];
+        });
+        this._afterGet();
+        return val;
+    },
+    _afterGet: function _afterGet() {
+        _Depend2.default.watcher = null;
+    }
+
+};
+
+},{"./Depend":3}]},{},[1])
+
 //# sourceMappingURL=build.js.map
