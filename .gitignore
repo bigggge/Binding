@@ -2,3 +2,5 @@
 *.iml
 out
 gen
+src
+node_modules

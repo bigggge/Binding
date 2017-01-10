@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>example</title>
+    <script src="../build/build.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <input type="text" v-model="msg">
+    <p v-class="className" class="abc">{{msg}}</p>{{msg2.a}}
+    <button v-on:click="click">click</button>
+</div>
+
+<script>
+    var vm = new Binding({
+        el: '#app',
+        data: {
+            msg: 'hello ',
+            msg2: {
+                a: 1,
+                b: 2
+            }
+//            className: 'btn',
+//            htmlStr: '<span style="color: #f00;">red</span>',
+//            child: {
+//                someStr: 'World !'
+//            }
+        },
+
+        methods: {
+            click: function (e) {
+                console.log('click')
+                this.msg += '/'
+//                var randomStrArr = ['childOne', 'childTwo', 'childThree'];
+//                this.child.someStr = randomStrArr[parseInt(Math.random() * 3)];
+            }
+        }
+    });
+
+    //    vm.$watch('child.someStr', function () {
+    //        console.log(arguments);
+    //    });
+</script>
+
+</body>
+</html>
