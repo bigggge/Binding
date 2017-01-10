@@ -1,0 +1,111 @@
+/**
+ * Parser.js
+ *
+ * 指令解析模块(v-text,v-html,v-model,v-class,v-on)
+ *
+ * Created by xiepan on 2017/1/10 下午1:25.
+ */
+import Updater from "./Updater";
+import Watcher from "./Watcher";
+
+
+var Parsers = {
+    text: function (node, vm, exp) {
+        // console.log('[Compiler DirectiveParsers] text')
+        this._bind(node, vm, exp, 'text')
+    },
+    html: function (node, vm, exp) {
+        // console.log('[Compiler DirectiveParsers] html')
+        this._bind(node, vm, exp, 'html')
+    },
+    model: function (node, vm, exp) {
+        // console.log('[Compiler DirectiveParsers] model')
+        this._bind(node, vm, exp, 'model')
+
+        var _this = this,
+            val = this._getValue(vm, exp)
+        node.addEventListener('input', function (e) {
+            var newVal = e.target.value
+            if (val === newVal) {
+                return
+            }
+            _this._setValue(vm, exp, newVal)
+            val = newVal
+        })
+    },
+    class: function (node, vm, exp) {
+        this._bind(node, vm, exp, 'class')
+    },
+    /**
+     * 调用 Updater 视图刷新模块并为其创建数据订阅模块
+     * @param node
+     * @param vm
+     * @param exp
+     * @param dir
+     * @private
+     */
+    _bind: function (node, vm, exp, dir) {
+        // 数据更新函数
+        var updaterFn = Updater[dir]
+
+        if (updaterFn) {
+            //{node,value}
+            // 初始化视图
+            updaterFn(node, this._getValue(vm, exp))
+            // 创建数据订阅器订阅数据变化，更新视图
+            new Watcher(vm, exp, function (val, oldVal) {
+                updaterFn(node, val, oldVal)
+            })
+        }
+    },
+    /**
+     * 事件处理
+     *
+     * @param node 节点
+     * @param vm Binding实例
+     * @param exp 方法名
+     * @param dir 指令名称(如：on:click)
+     */
+    _eventHandler: function (node, vm, exp, dir) {
+        console.log('[Compiler DirectiveParsers] eventHandler')
+        // 事件类型，如 click 事件
+        var eventType = dir.split(':')[1]
+        // 绑定的方法
+        var fn = vm.$options.methods && vm.$options.methods[exp]
+
+        // 添加事件监听器
+        if (eventType && fn) {
+            node.addEventListener(eventType, fn.bind(vm), false)
+        } else {
+            if (!eventType) {
+                console.error('[Binding error] eventType after : is not defined')
+            } else {
+                console.error('[Binding error] event\'s function or function name is not defined')
+            }
+        }
+    },
+    _getValue: function (vm, exp) {
+        // console.log('[Compiler DirectiveParsers] _getVMVal')
+        var val = vm.$data
+        exp = exp.split('.')
+        exp.forEach(function (k) {
+            val = val[k]
+        })
+        return val
+    },
+
+    _setValue: function (vm, exp, value) {
+        // console.log('[Compiler DirectiveParsers] _setVMVal')
+        var val = vm.$data
+        exp = exp.split('.')
+        exp.forEach(function (k, i) {
+            if (i < exp.length - 1) {
+                val = val[k]
+            } else {
+                val[k] = value
+            }
+        })
+    }
+}
+
+export default Parsers
