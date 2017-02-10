@@ -1,7 +1,7 @@
 /**
  * Watcher.js (subscriber)
  *
- * 数据订阅模块
+ * 数据订阅模块（订阅者）
  *
  * Created by xiepan on 2017/1/9 下午1:39.
  */

@@ -15,8 +15,11 @@ var id = 0;
 export default function Depend(key) {
     console.log('正在创建[依赖收集器]...', 'key', key)
     this.id = id++
+    // 订阅者数组
     this.watchers = []
+    // 当前订阅者
     this.watcher = null
+    this.key = key
 }
 
 Depend.prototype = {
@@ -26,15 +29,18 @@ Depend.prototype = {
      * @param watcher
      */
     addWatcher: function (watcher) {
-        console.log('[Observer Depend.prototype] addWatcher')
+        console.log('[Depend.prototype] addWatcher')
         this.watchers.push(watcher)
     },
-    depend: function () {
-        console.log('[Observer Depend.prototype] depend')
-        Depend.watcher.addDepend(this)
+    addDepend: function () {
+        console.log('[Depend.prototype] depend')
+        this.watcher.addDepend(this)
     },
+    /**
+     * 通知 Watcher 并触发回调函数
+     */
     notify: function () {
-        console.log('[Observer Depend.prototype] notify')
+        console.log('[Depend.prototype] notify')
         console.log('watchers', this.watchers)
         this.watchers.forEach(function (watcher) {
             watcher.update()

@@ -41,7 +41,7 @@ function Binding(options) {
         return;
     }
 
-    // 代理
+    // 初始化
     this._init(el);
     // 创建数据监听器(观察者)
     (0, _Observer2.default)(this.$data);
@@ -64,6 +64,7 @@ proto.$watch = function (key, cb) {
     new _Watcher2.default(this, key, cb);
 };
 
+// 代理 this.$data.msg => this.msg
 proto._proxy = function (key) {
     console.log('[Binding.prototype] proxy');
     var _this = this;
@@ -267,8 +268,11 @@ var id = 0;
 function Depend(key) {
     console.log('正在创建[依赖收集器]...', 'key', key);
     this.id = id++;
+    // 订阅者数组
     this.watchers = [];
+    // 当前订阅者
     this.watcher = null;
+    this.key = key;
 }
 
 Depend.prototype = {
@@ -278,15 +282,18 @@ Depend.prototype = {
      * @param watcher
      */
     addWatcher: function addWatcher(watcher) {
-        console.log('[Observer Depend.prototype] addWatcher');
+        console.log('[Depend.prototype] addWatcher');
         this.watchers.push(watcher);
     },
-    depend: function depend() {
-        console.log('[Observer Depend.prototype] depend');
-        Depend.watcher.addDepend(this);
+    addDepend: function addDepend() {
+        console.log('[Depend.prototype] depend');
+        this.watcher.addDepend(this);
     },
+    /**
+     * 通知 Watcher 并触发回调函数
+     */
     notify: function notify() {
-        console.log('[Observer Depend.prototype] notify');
+        console.log('[Depend.prototype] notify');
         console.log('watchers', this.watchers);
         this.watchers.forEach(function (watcher) {
             watcher.update();
@@ -304,13 +311,10 @@ Object.defineProperty(exports, "__esModule", {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; /**
                                                                                                                                                                                                                                                                                * observer.js
                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                               * 数据监听模块
+                                                                                                                                                                                                                                                                               * 数据监听模块(观察者)
                                                                                                                                                                                                                                                                                *
                                                                                                                                                                                                                                                                                * Created by xiepan on 2017/1/6 下午4:04.
                                                                                                                                                                                                                                                                                */
-// var $data = {name: 'ggg'}
-// createObserver($data)
-// $data.name = '123'
 
 
 exports.default = createObserver;
@@ -321,12 +325,23 @@ var _Depend2 = _interopRequireDefault(_Depend);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * 创建数据监听器
+ *
+ * @param value
+ * @returns {Observer}
+ */
+function createObserver(data) {
+    if (data) {
+        return new Observer(data);
+    }
+}
+
 function Observer(data) {
     // 监听对象的变化
     if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) === 'object') {
         console.log('正在创建[事件监听器]...');
         console.log('被监听数据：', data);
-        this.$data = data;
         this.observeObj(data);
     }
 }
@@ -340,8 +355,9 @@ Observer.prototype = {
     observeObj: function observeObj(data) {
         console.log('[Observer.prototype] observeObj');
         var _this = this;
+        // 取出data中的所有属性
         Object.keys(data).forEach(function (key) {
-            _this.defineProperty(_this.$data, key, data[key]);
+            _this.observe(data, key, data[key]);
         });
     },
     /**
@@ -351,7 +367,7 @@ Observer.prototype = {
      * @param key
      * @param val
      */
-    defineProperty: function defineProperty(data, key, val) {
+    observe: function observe(data, key, val) {
         var dep = new _Depend2.default(key);
         // 嵌套对象
         var childObj = createObserver(val);
@@ -361,7 +377,7 @@ Observer.prototype = {
             get: function get() {
                 console.log('[Observer.prototype] defineProperty:Depend.watcher', _Depend2.default.watcher);
                 if (_Depend2.default.watcher) {
-                    dep.depend();
+                    dep.addDepend();
                 }
                 return val;
             },
@@ -371,23 +387,12 @@ Observer.prototype = {
                 }
                 val = newVal;
                 childObj = createObserver(newVal);
+                // 通知所有订阅者
                 dep.notify();
             }
         });
     }
 };
-
-/**
- * 创建数据监听器
- *
- * @param value
- * @returns {Observer}
- */
-function createObserver(data) {
-    if (data) {
-        return new Observer(data);
-    }
-}
 
 },{"./Depend":3}],5:[function(require,module,exports){
 "use strict";
@@ -581,7 +586,7 @@ function Watcher(vm, exp, callback) {
 } /**
    * Watcher.js (subscriber)
    *
-   * 数据订阅模块
+   * 数据订阅模块（订阅者）
    *
    * Created by xiepan on 2017/1/9 下午1:39.
    */

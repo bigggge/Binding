@@ -28,7 +28,7 @@ function Binding(options) {
         return
     }
 
-    // 代理
+    // 初始化
     this._init(el)
     // 创建数据监听器(观察者)
     createObserver(this.$data)
@@ -51,6 +51,7 @@ proto.$watch = function (key, cb) {
     new Watcher(this, key, cb)
 }
 
+// 代理 this.$data.msg => this.msg
 proto._proxy = function (key) {
     console.log('[Binding.prototype] proxy')
     var _this = this

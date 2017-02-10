@@ -1,21 +1,29 @@
 /**
  * observer.js
  *
- * 数据监听模块
+ * 数据监听模块(观察者)
  *
  * Created by xiepan on 2017/1/6 下午4:04.
  */
-// var $data = {name: 'ggg'}
-// createObserver($data)
-// $data.name = '123'
 import Depend from "./Depend";
+
+/**
+ * 创建数据监听器
+ *
+ * @param value
+ * @returns {Observer}
+ */
+export default function createObserver(data) {
+    if (data) {
+        return new Observer(data)
+    }
+}
 
 function Observer(data) {
     // 监听对象的变化
     if (typeof data === 'object') {
         console.log('正在创建[事件监听器]...')
         console.log('被监听数据：', data)
-        this.$data = data
         this.observeObj(data)
     }
 }
@@ -29,8 +37,9 @@ Observer.prototype = {
     observeObj: function (data) {
         console.log('[Observer.prototype] observeObj')
         var _this = this
+        // 取出data中的所有属性
         Object.keys(data).forEach(function (key) {
-            _this.defineProperty(_this.$data, key, data[key])
+            _this.observe(data, key, data[key])
         })
     },
     /**
@@ -40,7 +49,7 @@ Observer.prototype = {
      * @param key
      * @param val
      */
-    defineProperty: function (data, key, val) {
+    observe: function (data, key, val) {
         var dep = new Depend(key)
         // 嵌套对象
         var childObj = createObserver(val)
@@ -50,7 +59,7 @@ Observer.prototype = {
             get: function () {
                 console.log('[Observer.prototype] defineProperty:Depend.watcher', Depend.watcher)
                 if (Depend.watcher) {
-                    dep.depend()
+                    dep.addDepend()
                 }
                 return val
             },
@@ -60,20 +69,10 @@ Observer.prototype = {
                 }
                 val = newVal
                 childObj = createObserver(newVal)
+                // 通知所有订阅者
                 dep.notify()
             }
         })
     }
 }
 
-/**
- * 创建数据监听器
- *
- * @param value
- * @returns {Observer}
- */
-export default function createObserver(data) {
-    if (data) {
-        return new Observer(data)
-    }
-}
