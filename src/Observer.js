@@ -57,9 +57,9 @@ Observer.prototype = {
             enumerable: true,
             configurable: false,
             get: function () {
-                console.log('[Observer.prototype] defineProperty:Depend.watcher', Depend.watcher)
+                // 如果当前有 Watcher 就将该 Watcher 绑定到当前的数据上
                 if (Depend.watcher) {
-                    dep.addDepend()
+                    Depend.watcher.addDepend(dep)
                 }
                 return val
             },

@@ -9,7 +9,7 @@
 
 <div id="app">
     <input type="text" v-model="msg">
-    <p v-class="className" class="abc">{{msg}}</p>{{msg2.a}}
+    <p v-class="className" class="abc">{{msg}}</p>
     <button v-on:click="click">click</button>
 </div>
 
@@ -18,10 +18,10 @@
         el: '#app',
         data: {
             msg: 'hello ',
-            msg2: {
-                a: 1,
-                b: 2
-            }
+//            msg2: {
+//                a: 1,
+//                b: 2
+//            }
 //            className: 'btn',
 //            htmlStr: '<span style="color: #f00;">red</span>',
 //            child: {
