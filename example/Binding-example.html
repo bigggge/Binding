@@ -9,7 +9,7 @@
 
 <div id="app">
     <input type="text" v-model="msg">
-    <p v-class="className" class="abc">{{msg}}</p>
+    <p v-class="className" class="abc">{{msg}}</p>{{msg2.c}}
     <button v-on:click="click">click</button>
 </div>
 
@@ -18,10 +18,10 @@
         el: '#app',
         data: {
             msg: 'hello ',
-//            msg2: {
-//                a: 1,
-//                b: 2
-//            }
+            msg2: {
+                a: 1,
+                b: 2,
+            }
 //            className: 'btn',
 //            htmlStr: '<span style="color: #f00;">red</span>',
 //            child: {
@@ -33,7 +33,8 @@
             click: function (e) {
                 console.log('click')
                 console.log(this)
-                this.msg += '/'
+//                this.msg += '/'
+                this.msg2 = {c: "c"}
 //                var randomStrArr = ['childOne', 'childTwo', 'childThree'];
 //                this.child.someStr = randomStrArr[parseInt(Math.random() * 3)];
             }

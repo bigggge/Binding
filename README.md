@@ -27,7 +27,7 @@ gulp
 
 ### 模块划分
 
-![binding](binding.png)
+![binding](binding.jpeg)
 
 
 
