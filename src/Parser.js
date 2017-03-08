@@ -11,30 +11,27 @@ import Watcher from "./Watcher";
 
 var Parsers = {
     text: function (node, vm, exp) {
-        // console.log('[Compiler DirectiveParsers] text')
         this._bind(node, vm, exp, 'text')
     },
     html: function (node, vm, exp) {
-        // console.log('[Compiler DirectiveParsers] html')
         this._bind(node, vm, exp, 'html')
     },
+    class: function (node, vm, exp) {
+        this._bind(node, vm, exp, 'class')
+    },
     model: function (node, vm, exp) {
-        // console.log('[Compiler DirectiveParsers] model')
         this._bind(node, vm, exp, 'model')
 
         var _this = this,
             val = this._getValue(vm, exp)
         node.addEventListener('input', function (e) {
             var newVal = e.target.value
-            if (val === newVal) {
-                return
-            }
+
+            if (val === newVal) return
+
             _this._setValue(vm, exp, newVal)
             val = newVal
         })
-    },
-    class: function (node, vm, exp) {
-        this._bind(node, vm, exp, 'class')
     },
     /**
      * 调用 Updater 视图刷新模块并为其创建数据订阅模块
@@ -45,6 +42,7 @@ var Parsers = {
      * @private
      */
     _bind: function (node, vm, exp, dir) {
+        console.log('[Parsers] _bind')
         // 数据更新函数
         var updaterFn = Updater[dir]
 
@@ -57,7 +55,8 @@ var Parsers = {
                 updaterFn(node, val, oldVal)
             })
         }
-    },
+    }
+    ,
     /**
      * 事件处理
      *
@@ -66,8 +65,7 @@ var Parsers = {
      * @param exp 方法名
      * @param dir 指令名称(如：on:click)
      */
-    _eventHandler: function (node, vm, exp, dir) {
-        console.log('[Compiler DirectiveParsers] eventHandler')
+    eventHandler: function (node, vm, exp, dir) {
         // 事件类型，如 click 事件
         var eventType = dir.split(':')[1]
         // 绑定的方法
@@ -83,26 +81,26 @@ var Parsers = {
                 console.error('[Binding error] event\'s function or function name is not defined')
             }
         }
-    },
+    }
+    ,
     _getValue: function (vm, exp) {
-        // console.log('[Compiler DirectiveParsers] _getVMVal')
         var val = vm.$data
         exp = exp.split('.')
-        exp.forEach(function (k) {
-            val = val[k]
+        exp.forEach(function (key) {
+            val = val[key]
         })
         return val
     },
-
-    _setValue: function (vm, exp, value) {
-        // console.log('[Compiler DirectiveParsers] _setVMVal')
+    // 用于监听 input 控件的输入
+    _setValue: function (vm, exp, newVal) {
         var val = vm.$data
         exp = exp.split('.')
-        exp.forEach(function (k, i) {
-            if (i < exp.length - 1) {
-                val = val[k]
+        //[msg]
+        exp.forEach(function (key, index) {
+            if (index < exp.length - 1) {
+                val = val[key]
             } else {
-                val[k] = value
+                val[key] = newVal
             }
         })
     }

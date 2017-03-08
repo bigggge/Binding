@@ -47,9 +47,6 @@ proto._init = function (el) {
         _this._proxy(key)
     })
 }
-proto.$watch = function (key, cb) {
-    new Watcher(this, key, cb)
-}
 
 // 代理 this.$data.msg => this.msg
 proto._proxy = function (key) {

@@ -8,7 +8,7 @@
 import Parsers from "./Parser";
 
 function Compiler(options, vm) {
-    console.log('正在创建[指令解析器]...')
+    console.log('正在创建[指令解析器 Compiler]...')
     console.log('数据参数对象:', options, 'Binding 实例', vm)
 
     var el = options.el
@@ -68,9 +68,10 @@ Compiler.prototype = {
                 var expression = attr.value
                 // 指令类型
                 var directive = attrName.substring(2);
+                console.log('[Compiler.prototype]', 'exp', expression, 'directive', directive)
                 // 是事件指令
                 if (isEventDirective(directive)) {
-                    Parsers._eventHandler(node, _this.$vm, expression, directive)
+                    Parsers.eventHandler(node, _this.$vm, expression, directive)
                 } else {
                     // 其他指令
                     if (Parsers[directive]) {
@@ -83,7 +84,7 @@ Compiler.prototype = {
         })
     },
     parseText: function (node, exp) {
-        console.log('[Compiler.prototype] 解析元素节点(parseText)')
+        console.log('[Compiler.prototype] 解析文本节点(parseText)')
         Parsers.text(node, this.$vm, exp)
     }
 }
@@ -104,7 +105,7 @@ function node2Fragment(el) {
     var fragment = document.createDocumentFragment()
     var child
     while (child = el.firstChild) {
-        fragment.appendChild(child);
+        fragment.appendChild(child)
     }
     return fragment
 }

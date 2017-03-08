@@ -13,7 +13,7 @@
 var id = 0;
 
 export default function Depend(key) {
-    console.log('正在创建[依赖收集器]...', 'key', key)
+    console.log('正在创建[依赖收集器 Depend]...', 'key', key)
     this.id = id++
     // 订阅者数组
     this.watchers = []
@@ -35,8 +35,7 @@ Depend.prototype = {
      * 通知所有 Watcher 并触发回调函数
      */
     notify: function () {
-        console.log('[Depend.prototype] notify')
-        console.log('watchers', this.watchers)
+        console.log('[Depend.prototype] notify()', 'watchers', this.watchers)
         this.watchers.forEach(function (watcher) {
             watcher.update()
         })

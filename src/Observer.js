@@ -22,7 +22,7 @@ export default function createObserver(data) {
 function Observer(data) {
     // 监听对象的变化
     if (typeof data === 'object') {
-        console.log('正在创建[数据监听器]...')
+        console.log('正在创建[数据监听器 Observer]...')
         console.log('被监听数据：', data)
         this.observeObj(data)
     }
@@ -57,9 +57,10 @@ Observer.prototype = {
             enumerable: true,
             configurable: false,
             get: function () {
+                console.log('[Observer.prototype] get', data, key)
                 // 如果当前有 Watcher 就将该 Watcher 添加到dep上
                 if (Depend.watcher) {
-                    Depend.watcher.bindToDepend(dep)
+                    Depend.watcher.attachTo(dep)
                 }
                 return val
             },
@@ -67,6 +68,7 @@ Observer.prototype = {
                 if (newVal === val) {
                     return
                 }
+                console.log('[Observer.prototype] set', data, key)
                 val = newVal
                 // 新的值是 object 则进行监听
                 childObj = createObserver(newVal)

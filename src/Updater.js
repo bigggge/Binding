@@ -8,7 +8,7 @@
 
 var Updater = {
     text: function (node, value) {
-        console.log('[Updater] v-text', value)
+        console.log('[Updater] v-text', node, value)
         node.textContent = typeof value == 'undefined' ? '' : value
     },
     html: function (node, value) {
