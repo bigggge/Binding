@@ -25,9 +25,10 @@ Watcher.prototype = {
         if (!this.depIds.hasOwnProperty(dep.id)) {
             dep.addWatcher(this)
             this.depIds[dep.id] = dep
+            console.log('[Watcher.prototype] attachTo dep.id is not exist so add watcher:', this)
         } else {
+            console.log('[Watcher.prototype] attachTo dep.id is exist in depIds')
         }
-        console.log('[Watcher.prototype] attachTo', this)
     },
     // 每次调用 update()的时候会触发相应属性的 getter, getter 里面会触发 bindToDepend
     update: function () {
@@ -35,7 +36,7 @@ Watcher.prototype = {
         var value = this._getValue()
         var oldValue = this.value
         if (value !== oldValue) {
-            console.log('[Watcher.prototype] value:', oldValue, '->', value)
+            console.log('[Watcher.prototype] value:', oldValue, '->', value,'callback will be call')
             this.value = value
             this.callback.call(this.vm, value, oldValue)
         }

@@ -10,7 +10,7 @@ import Depend from "./Depend";
 /**
  * 创建数据监听器
  *
- * @param value
+ * @param data
  * @returns {Observer}
  */
 export default function createObserver(data) {
@@ -50,8 +50,9 @@ Observer.prototype = {
      * @param val
      */
     observe: function (data, key, val) {
+        console.log('[Observer.prototype] observe', key)
         var dep = new Depend(key)
-        // 嵌套对象
+        // 嵌套对象的监听
         var childObj = createObserver(val)
         Object.defineProperty(data, key, {
             enumerable: true,
@@ -60,7 +61,10 @@ Observer.prototype = {
                 console.log('[Observer.prototype] get', data, key)
                 // 如果当前有 Watcher 就将该 Watcher 添加到dep上
                 if (Depend.watcher) {
+                    console.log('[Observer.prototype] get Depend.watcher is exist so add it to watchers')
                     Depend.watcher.attachTo(dep)
+                } else {
+                    console.log('[Observer.prototype] get Depend.watcher is null')
                 }
                 return val
             },

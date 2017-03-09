@@ -68,7 +68,7 @@ Compiler.prototype = {
                 var expression = attr.value
                 // 指令类型
                 var directive = attrName.substring(2);
-                console.log('[Compiler.prototype]', 'exp', expression, 'directive', directive)
+                console.log('[Compiler.prototype] parse()', 'exp:', expression, '; directive:', directive)
                 // 是事件指令
                 if (isEventDirective(directive)) {
                     Parsers.eventHandler(node, _this.$vm, expression, directive)

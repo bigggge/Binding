@@ -8,7 +8,6 @@
 import Updater from "./Updater";
 import Watcher from "./Watcher";
 
-
 var Parsers = {
     text: function (node, vm, exp) {
         this._bind(node, vm, exp, 'text')
@@ -42,7 +41,7 @@ var Parsers = {
      * @private
      */
     _bind: function (node, vm, exp, dir) {
-        console.log('[Parsers] _bind')
+        console.log('[Parsers] _bind(v-text,v-html,v-class,v-model)')
         // 数据更新函数
         var updaterFn = Updater[dir]
 
@@ -66,6 +65,7 @@ var Parsers = {
      * @param dir 指令名称(如：on:click)
      */
     eventHandler: function (node, vm, exp, dir) {
+        console.log('[Parsers] eventHandler(v-on:~)')
         // 事件类型，如 click 事件
         var eventType = dir.split(':')[1]
         // 绑定的方法
@@ -81,8 +81,7 @@ var Parsers = {
                 console.error('[Binding error] event\'s function or function name is not defined')
             }
         }
-    }
-    ,
+    },
     _getValue: function (vm, exp) {
         var val = vm.$data
         exp = exp.split('.')
