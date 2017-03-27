@@ -27,7 +27,7 @@ Depend.prototype = {
      * @param watcher
      */
     addWatcher: function (watcher) {
-        console.log('[Depend.prototype] addWatcher')
+        console.log('[Depend.prototype] addWatcher()')
         console.log(this.watchers)
         this.watchers.push(watcher)
     },
@@ -35,7 +35,7 @@ Depend.prototype = {
      * 通知所有 Watcher 并触发回调函数
      */
     notify: function () {
-        console.log('[Depend.prototype] notify()', 'watchers', this.watchers)
+        console.log('[Depend.prototype] notify():', 'watchers', this.watchers)
         this.watchers.forEach(function (watcher) {
             watcher.update()
         })

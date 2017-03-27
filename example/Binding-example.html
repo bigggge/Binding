@@ -4,31 +4,51 @@
     <meta charset="UTF-8">
     <title>example</title>
     <script src="../build/build.js"></script>
+    <style>
+        .blue {
+            background: cadetblue;
+        }
+
+        .green {
+            background: greenyellow;
+        }
+    </style>
 </head>
 <body>
 
 <div id="app">
-    <input type="text" v-model="msg">
-    <p v-class="className" class="abc">{{msg}}</p>{{msg2.c}}
+    <!--<input type="text" v-model="msg">-->
+    <!--<p v-class="className" class="abc">{{ msg }}</p>-->
+    <!--<p>{{ msg2.c }}</p>-->
     <button v-on:click="click">click</button>
+    <p> {{ reversedMsg }}</p>
+    <!--<p> {{ info }}</p>-->
 </div>
 
 <script>
     var vm = new Binding({
         el: '#app',
         data: {
-            msg: 'hello ',
+            msg: 'hello',
             msg2: {
                 a: 1,
                 b: 2,
+            },
+            className: 'blue'
+        },
+        computed: {
+            reversedMsg: function () {
+                console.log('...')
+                return this.msg.split('').reverse().join('')
+            },
+            info: function () {
+                return this.msg + ' computed'
             }
         },
-
         methods: {
             click: function (e) {
-                console.log('click')
-                console.log(this)
                 this.msg += '/'
+                this.className = 'green'
             }
         }
     });

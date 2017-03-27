@@ -8,7 +8,7 @@
 import Depend from "./Depend";
 
 export default function Watcher(vm, exp, callback) {
-    console.log('正在创建[数据订阅器 Watcher]...', 'vm:', vm, ' expression:', exp, ' callback:', callback)
+    console.log('正在创建[数据订阅器 Watcher]...', 'vm:', vm, ' expression:', exp)
 
     this.vm = vm
     // 数据更新回调函数
@@ -25,18 +25,18 @@ Watcher.prototype = {
         if (!this.depIds.hasOwnProperty(dep.id)) {
             dep.addWatcher(this)
             this.depIds[dep.id] = dep
-            console.log('[Watcher.prototype] attachTo dep.id is not exist so add watcher:', this)
+            console.log('[Watcher.prototype] attachTo(): dep.id is not exist so add watcher:', this)
         } else {
-            console.log('[Watcher.prototype] attachTo dep.id is exist in depIds')
+            console.log('[Watcher.prototype] attachTo(): dep.id is exist in depIds')
         }
     },
     // 每次调用 update()的时候会触发相应属性的 getter, getter 里面会触发 bindToDepend
     update: function () {
-        console.log('[Watcher.prototype] update')
+        console.log('[Watcher.prototype] update()')
         var value = this._getValue()
         var oldValue = this.value
         if (value !== oldValue) {
-            console.log('[Watcher.prototype] value:', oldValue, '->', value,'callback will be call')
+            console.log('[Watcher.prototype] update(): value:', oldValue, '->', value, '; callback will be call')
             this.value = value
             this.callback.call(this.vm, value, oldValue)
         }

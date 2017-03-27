@@ -16,11 +16,16 @@ gulp
 - 脏值检测（Angular.js）[实例](example/dirty-check-binding.html)
 - 使用 `Object.defineProperty()` 进行数据劫持（Vue.js）[实例](example/hijack-binding.html)
 
-[Q&A](QA.md)            
+### Q&A  
+
+[Q&A](QA.md)          
             
 ### 模块划分
 
 ![binding](bind.jpeg)
+
+
+
 
 
 

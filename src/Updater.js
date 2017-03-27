@@ -8,15 +8,15 @@
 
 var Updater = {
     text: function (node, value) {
-        console.log('[Updater] v-text', node, value)
-        node.textContent = typeof value == 'undefined' ? '' : value
+        console.log('[Updater] v-text', value)
+        node.textContent = value || ''
     },
     html: function (node, value) {
-        console.log('[Updater] v-html', node, value)
-        node.innerHTML = typeof value == 'undefined' ? '' : value
+        console.log('[Updater] v-html', value)
+        node.innerHTML = value || ''
     },
     class: function (node, value, oldValue) {
-        console.log('[Updater] v-class', node, oldValue, '->', value)
+        console.log('[Updater] v-class', oldValue, '->', value)
         var className = node.className
         className = className.replace(oldValue, '').replace(/\s$/, '')
 
@@ -24,8 +24,8 @@ var Updater = {
         node.className = className + space + value
     },
     model: function (node, value) {
-        console.log('[Updater] v-model', node, value)
-        node.value = typeof value == 'undefined' ? '' : value
+        console.log('[Updater] v-model', value)
+        node.value = value || ''
     }
 }
 

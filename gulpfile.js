@@ -18,8 +18,8 @@ gulp.task('build', function () {
         .pipe(source('build.js'))
         .pipe(buffer())
         // .pipe(uglify())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(sourcemaps.write('./'))
+        // .pipe(sourcemaps.init({loadMaps: true}))
+        // .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./build'));
 });
 

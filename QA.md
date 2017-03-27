@@ -20,7 +20,7 @@
 
 1. *(Compiler 判断出指令类型v-model)* 
 2. *(Compiler 调用了 Parser 中的 model 方法,监听了 input 事件,input 事件对 $data 中 key 为 exp 的数据赋值)*
-3. (赋值操作直接进入此步骤)所以赋值操作触发了 set 方法, 并 notify 了所有 watcher, 循环 watchers 数组,每个 watcher 都进行 update
+3. 所以赋值操作触发了 set 方法, 并 notify 了所有 watcher, 循环 watchers 数组,每个 watcher 都进行 update
 4. *(update 时 Depend 的 watcher 属性也被赋值为当前 watcher)*
 5. *(watcher 的 update 方法会循环 exp 并触发 Object.defineProperty 的 get)*
 6. *(除非添加了新属性，才会将当前 watcher 添加到 Depend 的 watchers 数组上)*

@@ -12,9 +12,31 @@ function Compiler(options, vm) {
     console.log('数据参数对象:', options, 'Binding 实例', vm)
 
     var el = options.el
+    var computed = options.computed;
     this.$el = isElementNode(el) ? el : document.querySelector(el)
-    this.$data = options.$data
+    this.$data = options.data
     this.$vm = vm
+
+
+    // 计算属性
+    if (computed) {
+        var keys = Object.keys(computed)
+
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            console.log('[Compiler] computed 计算属性', key)
+            if (!(typeof computed[key] === 'function')) {
+                console.error('[Binding error] computed property [' + key + '] must be a function!')
+                return
+            }
+            Object.defineProperty(this.$data, key, {
+                get: computed[key]
+            })
+
+
+        }
+    }
+
     this.mount()
 }
 
@@ -42,7 +64,7 @@ Compiler.prototype = {
                 _this.parse(node)
                 // 文本
             } else if (isTextNode(node) && mustacheRe.test(text)) {
-                _this.parseText(node, RegExp.$1)
+                _this.parseText(node, RegExp.$1.trim())
             }
             // 子节点
             if (node.childNodes && node.childNodes.length > 0) {
